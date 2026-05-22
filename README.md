@@ -1,4 +1,4 @@
-﻿# Gray's Investment Lab
+# Gray's Investment Lab
 
 A local learning app for coding, AI tools, and investment thinking.
 
