@@ -229,14 +229,26 @@ button:hover {
   font-weight: 800;
 }
 
-.research-checklist ul {
+.research-fields {
   display: grid;
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   margin: 12px 0 0;
-  padding-left: 20px;
 }
 
-.research-checklist li {
+.research-field {
+  margin: 0;
+}
+
+.research-field span {
+  color: #3b453d;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.research-field textarea {
+  min-height: 74px;
+  background: #fffdf6;
   line-height: 1.45;
 }
 
@@ -276,6 +288,7 @@ dd {
 
   .dashboard,
   .workspace,
+  .research-fields,
   dl {
     grid-template-columns: 1fr;
   }

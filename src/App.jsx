@@ -42,14 +42,46 @@ const emptyForm = {
 };
 
 const researchChecklist = [
-  'Goal: What is this investment meant to help me do?',
-  'Time horizon: How many years could I hold it?',
-  'Role: Core holding, diversifier, defensive asset, or learning idea?',
-  'Fees: What is the management fee and are there trading costs?',
-  'Holdings: What companies, countries, sectors, or bonds does it contain?',
-  'Risk: What could go wrong and how much could it fall?',
-  'Overlap: Do I already own similar exposure somewhere else?',
-  'Decision: Watch, simulate, pass, or research more?',
+  {
+    key: 'goal',
+    label: 'Goal',
+    prompt: 'What is this investment meant to help me do?',
+  },
+  {
+    key: 'timeHorizon',
+    label: 'Time horizon',
+    prompt: 'How many years could I hold it?',
+  },
+  {
+    key: 'role',
+    label: 'Role',
+    prompt: 'Core holding, diversifier, defensive asset, or learning idea?',
+  },
+  {
+    key: 'fees',
+    label: 'Fees',
+    prompt: 'What is the management fee and are there trading costs?',
+  },
+  {
+    key: 'holdings',
+    label: 'Holdings',
+    prompt: 'What companies, countries, sectors, or bonds does it contain?',
+  },
+  {
+    key: 'riskResearch',
+    label: 'Risk',
+    prompt: 'What could go wrong and how much could it fall?',
+  },
+  {
+    key: 'overlap',
+    label: 'Overlap',
+    prompt: 'Do I already own similar exposure somewhere else?',
+  },
+  {
+    key: 'decision',
+    label: 'Decision',
+    prompt: 'Watch, simulate, pass, or research more?',
+  },
 ];
 
 const suggestedResearchIdeas = [
@@ -244,6 +276,22 @@ function App() {
     setForm(emptyForm);
   }
 
+  function updateResearchAnswer(itemId, field, value) {
+    setWatchlist((current) =>
+      current.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              research: {
+                ...(item.research ?? {}),
+                [field]: value,
+              },
+            }
+          : item
+      )
+    );
+  }
+
   return (
     <main className="app-shell">
       <section className="hero">
@@ -357,11 +405,18 @@ function App() {
                 <p><b>Risk:</b> {item.risk || 'No risk written yet.'}</p>
                 <details className="research-checklist">
                   <summary>Research checklist</summary>
-                  <ul>
+                  <div className="research-fields">
                     {researchChecklist.map((question) => (
-                      <li key={question}>{question}</li>
+                      <label className="research-field" key={question.key}>
+                        <span>{question.label}</span>
+                        <textarea
+                          value={item.research?.[question.key] ?? ''}
+                          onChange={(event) => updateResearchAnswer(item.id, question.key, event.target.value)}
+                          placeholder={question.prompt}
+                        />
+                      </label>
                     ))}
-                  </ul>
+                  </div>
                 </details>
                 <dl>
                   <div><dt>Review</dt><dd>{item.reviewDate || 'Not set'}</dd></div>
