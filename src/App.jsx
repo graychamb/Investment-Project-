@@ -41,6 +41,111 @@ const emptyForm = {
   units: '',
 };
 
+const suggestedResearchIdeas = [
+  {
+    id: 'idea-ivv',
+    ticker: 'IVV',
+    name: 'iShares S&P 500 ETF',
+    thesis: 'Core US market exposure. Good research question: what does owning 500 large US companies teach me about diversification?',
+    risk: 'US market and currency risk. A strong recent run can make future returns less predictable.',
+    reviewDate: '2026-08-28',
+    status: 'Watching',
+    buyPrice: 0,
+    currentPrice: 0,
+    units: 0,
+  },
+  {
+    id: 'idea-vas',
+    ticker: 'VAS',
+    name: 'Vanguard Australian Shares Index ETF',
+    thesis: 'Broad Australian share market exposure. Useful for comparing home-market investing with global investing.',
+    risk: 'Australia is concentrated in banks and resources, so it is less diversified than it first looks.',
+    reviewDate: '2026-08-28',
+    status: 'Watching',
+    buyPrice: 0,
+    currentPrice: 0,
+    units: 0,
+  },
+  {
+    id: 'idea-vgs',
+    ticker: 'VGS',
+    name: 'Vanguard MSCI Index International Shares ETF',
+    thesis: 'Developed-world international shares. Good research question: how does global diversification change risk?',
+    risk: 'Currency movements and global market falls can still hurt returns.',
+    reviewDate: '2026-08-28',
+    status: 'Watching',
+    buyPrice: 0,
+    currentPrice: 0,
+    units: 0,
+  },
+  {
+    id: 'idea-vdhg',
+    ticker: 'VDHG',
+    name: 'Vanguard Diversified High Growth Index ETF',
+    thesis: 'An all-in-one diversified growth ETF. Useful for learning how a premixed portfolio is built.',
+    risk: 'Still share-heavy, so it can fall sharply. Also worth researching whether the mix suits the investor.',
+    reviewDate: '2026-08-28',
+    status: 'Watching',
+    buyPrice: 0,
+    currentPrice: 0,
+    units: 0,
+  },
+  {
+    id: 'idea-vaf',
+    ticker: 'VAF',
+    name: 'Vanguard Australian Fixed Interest Index ETF',
+    thesis: 'Bond exposure for learning how defensive assets behave differently from shares.',
+    risk: 'Interest rate changes can move bond prices, and returns may be lower than shares over long periods.',
+    reviewDate: '2026-08-28',
+    status: 'Watching',
+    buyPrice: 0,
+    currentPrice: 0,
+    units: 0,
+  },
+  {
+    id: 'idea-ndq',
+    ticker: 'NDQ',
+    name: 'Betashares Nasdaq 100 ETF',
+    thesis: 'Technology-heavy US growth exposure. Useful for studying concentration, hype, and valuation risk.',
+    risk: 'More concentrated and volatile than broad-market ETFs, with sector and currency risk.',
+    reviewDate: '2026-08-28',
+    status: 'Watching',
+    buyPrice: 0,
+    currentPrice: 0,
+    units: 0,
+  },
+  {
+    id: 'idea-a200',
+    ticker: 'A200',
+    name: 'Betashares Australia 200 ETF',
+    thesis: 'Low-cost Australian market exposure. Useful comparison against VAS.',
+    risk: 'Similar home-market concentration issues to other Australian broad-market ETFs.',
+    reviewDate: '2026-08-28',
+    status: 'Watching',
+    buyPrice: 0,
+    currentPrice: 0,
+    units: 0,
+  },
+  {
+    id: 'idea-ioo',
+    ticker: 'IOO',
+    name: 'iShares Global 100 ETF',
+    thesis: 'A focused basket of large global companies. Useful for comparing global blue chips with broad index funds.',
+    risk: 'Only 100 companies, so it is less diversified than broader global ETFs.',
+    reviewDate: '2026-08-28',
+    status: 'Watching',
+    buyPrice: 0,
+    currentPrice: 0,
+    units: 0,
+  },
+];
+
+function mergeResearchIdeas(watchlist) {
+  const existingTickers = new Set(watchlist.map((item) => item.ticker.toUpperCase()));
+  const missingIdeas = suggestedResearchIdeas.filter((item) => !existingTickers.has(item.ticker));
+  return [...watchlist, ...missingIdeas];
+}
+
 function money(value) {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -54,14 +159,14 @@ function App() {
     const savedWatchlist = localStorage.getItem(watchlistStorageKey);
 
     if (!savedWatchlist) {
-      return startingWatchlist;
+      return mergeResearchIdeas(startingWatchlist);
     }
 
     try {
       const parsedWatchlist = JSON.parse(savedWatchlist);
-      return Array.isArray(parsedWatchlist) ? parsedWatchlist : startingWatchlist;
+      return Array.isArray(parsedWatchlist) ? mergeResearchIdeas(parsedWatchlist) : mergeResearchIdeas(startingWatchlist);
     } catch {
-      return startingWatchlist;
+      return mergeResearchIdeas(startingWatchlist);
     }
   });
   const [form, setForm] = useState(emptyForm);
