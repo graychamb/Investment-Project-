@@ -41,6 +41,17 @@ const emptyForm = {
   units: '',
 };
 
+const researchChecklist = [
+  'Goal: What is this investment meant to help me do?',
+  'Time horizon: How many years could I hold it?',
+  'Role: Core holding, diversifier, defensive asset, or learning idea?',
+  'Fees: What is the management fee and are there trading costs?',
+  'Holdings: What companies, countries, sectors, or bonds does it contain?',
+  'Risk: What could go wrong and how much could it fall?',
+  'Overlap: Do I already own similar exposure somewhere else?',
+  'Decision: Watch, simulate, pass, or research more?',
+];
+
 const suggestedResearchIdeas = [
   {
     id: 'idea-ivv',
@@ -344,6 +355,14 @@ function App() {
                 </div>
                 <p><b>Thesis:</b> {item.thesis || 'No thesis written yet.'}</p>
                 <p><b>Risk:</b> {item.risk || 'No risk written yet.'}</p>
+                <details className="research-checklist">
+                  <summary>Research checklist</summary>
+                  <ul>
+                    {researchChecklist.map((question) => (
+                      <li key={question}>{question}</li>
+                    ))}
+                  </ul>
+                </details>
                 <dl>
                   <div><dt>Review</dt><dd>{item.reviewDate || 'Not set'}</dd></div>
                   <div><dt>Invested</dt><dd>{money(item.invested)}</dd></div>

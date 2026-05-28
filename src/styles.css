@@ -215,6 +215,31 @@ button:hover {
   line-height: 1.5;
 }
 
+.research-checklist {
+  margin-top: 14px;
+  border: 1px solid #e5decd;
+  border-radius: 8px;
+  background: #fbf8ef;
+  padding: 12px 14px;
+}
+
+.research-checklist summary {
+  color: #1f6f4a;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.research-checklist ul {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding-left: 20px;
+}
+
+.research-checklist li {
+  line-height: 1.45;
+}
+
 dl {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
