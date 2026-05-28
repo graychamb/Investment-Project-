@@ -1,4 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
+const watchlistStorageKey = 'investment-lab-watchlist';
 
 const startingWatchlist = [
   {
@@ -48,8 +50,25 @@ function money(value) {
 }
 
 function App() {
-  const [watchlist, setWatchlist] = useState(startingWatchlist);
+  const [watchlist, setWatchlist] = useState(() => {
+    const savedWatchlist = localStorage.getItem(watchlistStorageKey);
+
+    if (!savedWatchlist) {
+      return startingWatchlist;
+    }
+
+    try {
+      const parsedWatchlist = JSON.parse(savedWatchlist);
+      return Array.isArray(parsedWatchlist) ? parsedWatchlist : startingWatchlist;
+    } catch {
+      return startingWatchlist;
+    }
+  });
   const [form, setForm] = useState(emptyForm);
+
+  useEffect(() => {
+    localStorage.setItem(watchlistStorageKey, JSON.stringify(watchlist));
+  }, [watchlist]);
 
   const summary = useMemo(() => {
     const rows = watchlist.map((item) => {
