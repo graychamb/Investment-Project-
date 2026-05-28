@@ -51,7 +51,7 @@ const suggestedResearchIdeas = [
     reviewDate: '2026-08-28',
     status: 'Watching',
     buyPrice: 0,
-    currentPrice: 0,
+    currentPrice: 70.35,
     units: 0,
   },
   {
@@ -63,7 +63,7 @@ const suggestedResearchIdeas = [
     reviewDate: '2026-08-28',
     status: 'Watching',
     buyPrice: 0,
-    currentPrice: 0,
+    currentPrice: 106.77,
     units: 0,
   },
   {
@@ -75,7 +75,7 @@ const suggestedResearchIdeas = [
     reviewDate: '2026-08-28',
     status: 'Watching',
     buyPrice: 0,
-    currentPrice: 0,
+    currentPrice: 156.49,
     units: 0,
   },
   {
@@ -87,7 +87,7 @@ const suggestedResearchIdeas = [
     reviewDate: '2026-08-28',
     status: 'Watching',
     buyPrice: 0,
-    currentPrice: 0,
+    currentPrice: 75.62,
     units: 0,
   },
   {
@@ -99,7 +99,7 @@ const suggestedResearchIdeas = [
     reviewDate: '2026-08-28',
     status: 'Watching',
     buyPrice: 0,
-    currentPrice: 0,
+    currentPrice: 45.52,
     units: 0,
   },
   {
@@ -111,7 +111,7 @@ const suggestedResearchIdeas = [
     reviewDate: '2026-08-28',
     status: 'Watching',
     buyPrice: 0,
-    currentPrice: 0,
+    currentPrice: 62.07,
     units: 0,
   },
   {
@@ -123,7 +123,7 @@ const suggestedResearchIdeas = [
     reviewDate: '2026-08-28',
     status: 'Watching',
     buyPrice: 0,
-    currentPrice: 0,
+    currentPrice: 144.03,
     units: 0,
   },
   {
@@ -135,15 +135,26 @@ const suggestedResearchIdeas = [
     reviewDate: '2026-08-28',
     status: 'Watching',
     buyPrice: 0,
-    currentPrice: 0,
+    currentPrice: 196.28,
     units: 0,
   },
 ];
 
 function mergeResearchIdeas(watchlist) {
-  const existingTickers = new Set(watchlist.map((item) => item.ticker.toUpperCase()));
+  const starterIdeasByTicker = new Map(suggestedResearchIdeas.map((item) => [item.ticker, item]));
+  const watchlistWithPrices = watchlist.map((item) => {
+    const starterIdea = starterIdeasByTicker.get(item.ticker.toUpperCase());
+
+    if (!starterIdea || Number(item.currentPrice) > 0) {
+      return item;
+    }
+
+    return { ...item, currentPrice: starterIdea.currentPrice };
+  });
+
+  const existingTickers = new Set(watchlistWithPrices.map((item) => item.ticker.toUpperCase()));
   const missingIdeas = suggestedResearchIdeas.filter((item) => !existingTickers.has(item.ticker));
-  return [...watchlist, ...missingIdeas];
+  return [...watchlistWithPrices, ...missingIdeas];
 }
 
 function money(value) {
@@ -231,6 +242,7 @@ function App() {
           <p className="intro">
             Track ideas, write down your thesis, simulate positions, and compare what you expected with what actually happened.
           </p>
+          <p className="data-note">ETF prices are delayed research snapshots entered manually, not live trading data.</p>
         </div>
       </section>
 
