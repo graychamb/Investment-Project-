@@ -216,6 +216,17 @@ function percent(value) {
   return `${Number(value).toFixed(2)}%`;
 }
 
+function formatDateTime(value) {
+  if (!value) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('en-AU', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value));
+}
+
 function App() {
   const [watchlist, setWatchlist] = useState(() => {
     const savedWatchlist = localStorage.getItem(watchlistStorageKey);
@@ -322,9 +333,25 @@ function App() {
             return item;
           }
 
+          const previousSnapshot = item.priceHistory?.[0];
+          const previousPrice = previousSnapshot?.price ?? Number(item.currentPrice || 0);
+          const latestPrice = Number(quote.price);
+          const changeSinceLastCheck = previousPrice ? latestPrice - previousPrice : 0;
+          const changePercentSinceLastCheck = previousPrice ? (changeSinceLastCheck / previousPrice) * 100 : 0;
+          const nextSnapshot = {
+            checkedAt: data.checkedAt,
+            price: latestPrice,
+            previousPrice,
+            change: changeSinceLastCheck,
+            changePercent: changePercentSinceLastCheck,
+            marketChange: quote.change,
+            marketChangePercent: quote.changePercent,
+            currency: quote.currency,
+          };
+
           return {
             ...item,
-            currentPrice: Number(quote.price),
+            currentPrice: latestPrice,
             marketQuote: {
               checkedAt: data.checkedAt,
               previousClose: quote.previousClose,
@@ -333,6 +360,7 @@ function App() {
               currency: quote.currency,
               marketTime: quote.marketTime,
             },
+            priceHistory: [nextSnapshot, ...(item.priceHistory ?? [])].slice(0, 20),
           };
         })
       );
@@ -468,6 +496,31 @@ function App() {
                       Previous close: {money(Number(item.marketQuote.previousClose || 0))}. Use this as a clue, then research what may have moved the market.
                     </p>
                   </div>
+                )}
+                {item.priceHistory?.length > 0 && (
+                  <details className="price-history">
+                    <summary>Price history</summary>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Checked</th>
+                          <th>Price</th>
+                          <th>Since last check</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {item.priceHistory.slice(0, 5).map((snapshot) => (
+                          <tr key={`${item.id}-${snapshot.checkedAt}`}>
+                            <td>{formatDateTime(snapshot.checkedAt)}</td>
+                            <td>{money(snapshot.price)}</td>
+                            <td className={Number(snapshot.change) >= 0 ? 'positive' : 'negative'}>
+                              {money(snapshot.change)} ({percent(snapshot.changePercent)})
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </details>
                 )}
                 <details className="research-checklist">
                   <summary>Research checklist</summary>

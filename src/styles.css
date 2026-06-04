@@ -262,6 +262,46 @@ button:hover {
   margin-bottom: 0;
 }
 
+.price-history {
+  margin-top: 14px;
+  overflow-x: auto;
+  border: 1px solid #e5decd;
+  border-radius: 8px;
+  background: #fffdf6;
+  padding: 12px 14px;
+}
+
+.price-history summary {
+  color: #1f6f4a;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.price-history table {
+  width: 100%;
+  min-width: 520px;
+  margin-top: 12px;
+  border-collapse: collapse;
+}
+
+.price-history th,
+.price-history td {
+  border-top: 1px solid #e5decd;
+  padding: 10px 8px;
+  text-align: left;
+}
+
+.price-history th {
+  color: #667064;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.price-history td {
+  font-size: 14px;
+  font-weight: 700;
+}
+
 .research-checklist {
   margin-top: 14px;
   border: 1px solid #e5decd;
