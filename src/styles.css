@@ -64,6 +64,29 @@ select {
   line-height: 1.5;
 }
 
+.market-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 22px;
+}
+
+.market-actions button {
+  width: auto;
+  background: #b58931;
+  color: #17211b;
+}
+
+.market-actions button:hover {
+  background: #d2a13a;
+}
+
+.market-actions span {
+  color: #ebe7d8;
+  font-size: 14px;
+}
+
 .eyebrow {
   margin: 0 0 10px;
   color: #b58931;
@@ -213,6 +236,30 @@ button:hover {
 .position p {
   margin: 8px 0;
   line-height: 1.5;
+}
+
+.market-move {
+  margin-top: 14px;
+  border-left: 4px solid #b58931;
+  background: #f7f1e2;
+  padding: 12px 14px;
+}
+
+.market-move span {
+  display: block;
+  margin-bottom: 5px;
+  color: #667064;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.market-move strong {
+  display: block;
+}
+
+.market-move p {
+  margin-bottom: 0;
 }
 
 .research-checklist {

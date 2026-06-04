@@ -208,6 +208,14 @@ function money(value) {
   }).format(value);
 }
 
+function percent(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
+    return '-';
+  }
+
+  return `${Number(value).toFixed(2)}%`;
+}
+
 function App() {
   const [watchlist, setWatchlist] = useState(() => {
     const savedWatchlist = localStorage.getItem(watchlistStorageKey);
@@ -224,6 +232,7 @@ function App() {
     }
   });
   const [form, setForm] = useState(emptyForm);
+  const [marketStatus, setMarketStatus] = useState('Ready to fetch delayed ASX ETF prices.');
 
   useEffect(() => {
     localStorage.setItem(watchlistStorageKey, JSON.stringify(watchlist));
@@ -292,6 +301,48 @@ function App() {
     );
   }
 
+  async function refreshMarketPrices() {
+    setMarketStatus('Fetching delayed market prices...');
+
+    try {
+      const response = await fetch('/api/quotes');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? 'Could not fetch market prices.');
+      }
+
+      const quotesByTicker = new Map(data.quotes.map((quote) => [quote.ticker, quote]));
+
+      setWatchlist((current) =>
+        current.map((item) => {
+          const quote = quotesByTicker.get(item.ticker.toUpperCase());
+
+          if (!quote || !quote.price) {
+            return item;
+          }
+
+          return {
+            ...item,
+            currentPrice: Number(quote.price),
+            marketQuote: {
+              checkedAt: data.checkedAt,
+              previousClose: quote.previousClose,
+              change: quote.change,
+              changePercent: quote.changePercent,
+              currency: quote.currency,
+              marketTime: quote.marketTime,
+            },
+          };
+        })
+      );
+
+      setMarketStatus(`Updated ${data.quotes.length} delayed quote snapshots.`);
+    } catch (error) {
+      setMarketStatus(error instanceof Error ? error.message : 'Could not fetch market prices.');
+    }
+  }
+
   return (
     <main className="app-shell">
       <section className="hero">
@@ -302,6 +353,10 @@ function App() {
             Track ideas, write down your thesis, simulate positions, and compare what you expected with what actually happened.
           </p>
           <p className="data-note">ETF prices are delayed research snapshots entered manually, not live trading data.</p>
+          <div className="market-actions">
+            <button type="button" onClick={refreshMarketPrices}>Update market prices</button>
+            <span>{marketStatus}</span>
+          </div>
         </div>
       </section>
 
@@ -403,6 +458,17 @@ function App() {
                 </div>
                 <p><b>Thesis:</b> {item.thesis || 'No thesis written yet.'}</p>
                 <p><b>Risk:</b> {item.risk || 'No risk written yet.'}</p>
+                {item.marketQuote && (
+                  <div className="market-move">
+                    <span>Latest market move</span>
+                    <strong className={Number(item.marketQuote.change) >= 0 ? 'positive' : 'negative'}>
+                      {money(Number(item.marketQuote.change || 0))} ({percent(item.marketQuote.changePercent)})
+                    </strong>
+                    <p>
+                      Previous close: {money(Number(item.marketQuote.previousClose || 0))}. Use this as a clue, then research what may have moved the market.
+                    </p>
+                  </div>
+                )}
                 <details className="research-checklist">
                   <summary>Research checklist</summary>
                   <div className="research-fields">
