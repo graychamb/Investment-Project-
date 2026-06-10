@@ -269,6 +269,71 @@ button:hover {
   gap: 14px;
 }
 
+.portfolio-browser {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.8fr) minmax(0, 1.2fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.etf-list {
+  display: grid;
+  gap: 8px;
+}
+
+.etf-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) 92px 70px 96px;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #e5decd;
+  border-radius: 8px;
+  background: #fff;
+  color: #17211b;
+  padding: 12px;
+  text-align: left;
+}
+
+.etf-row:hover,
+.etf-row.selected {
+  border-color: #1f6f4a;
+  background: #f3f8f2;
+}
+
+.etf-row span {
+  color: #17211b;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.etf-row small {
+  display: block;
+  overflow: hidden;
+  margin-top: 3px;
+  color: #667064;
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.etf-row em {
+  border-radius: 999px;
+  background: #edf4ee;
+  color: #1f6f4a;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  text-align: center;
+}
+
+.detail-panel {
+  position: sticky;
+  top: 16px;
+}
+
 .position {
   border: 1px solid #e5decd;
   border-radius: 8px;
@@ -560,10 +625,24 @@ dd {
   .dashboard,
   .snapshot-grid,
   .workspace,
+  .portfolio-browser,
   .explanation-review,
   .research-fields,
   dl {
     grid-template-columns: 1fr;
+  }
+
+  .detail-panel {
+    position: static;
+  }
+
+  .etf-row {
+    grid-template-columns: 1fr 78px;
+  }
+
+  .etf-row span:nth-child(3),
+  .etf-row em {
+    grid-column: span 1;
   }
 
   .snapshot-heading {

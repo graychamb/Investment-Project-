@@ -468,6 +468,7 @@ function App() {
   });
   const [form, setForm] = useState(emptyForm);
   const [marketStatus, setMarketStatus] = useState('Ready to fetch delayed ASX ETF prices.');
+  const [selectedTicker, setSelectedTicker] = useState('');
 
   useEffect(() => {
     localStorage.setItem(watchlistStorageKey, JSON.stringify(watchlist));
@@ -524,6 +525,16 @@ function App() {
       hasSnapshots: rowsWithSnapshots.length > 0,
     };
   }, [summary.rows]);
+
+  const selectedItem = useMemo(() => {
+    return summary.rows.find((item) => item.ticker === selectedTicker) ?? summary.rows[0];
+  }, [selectedTicker, summary.rows]);
+
+  useEffect(() => {
+    if (!selectedTicker && summary.rows[0]) {
+      setSelectedTicker(summary.rows[0].ticker);
+    }
+  }, [selectedTicker, summary.rows]);
 
   function updateForm(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -785,37 +796,63 @@ function App() {
             <h2>Current ideas</h2>
           </div>
 
-          <div className="positions">
-            {summary.rows.map((item) => (
-              <article className="position" key={item.id}>
+          <div className="portfolio-browser">
+            <div className="etf-list" role="list" aria-label="ETF list">
+              {summary.rows.map((item) => {
+                const latestSnapshot = item.priceHistory?.[0];
+                const isSelected = selectedItem?.id === item.id;
+
+                return (
+                  <button
+                    className={`etf-row ${isSelected ? 'selected' : ''}`}
+                    type="button"
+                    key={item.id}
+                    onClick={() => setSelectedTicker(item.ticker)}
+                  >
+                    <span>
+                      <strong>{item.ticker}</strong>
+                      <small>{item.name}</small>
+                    </span>
+                    <span>{money(Number(item.currentPrice || 0))}</span>
+                    <span className={Number(latestSnapshot?.changePercent ?? 0) >= 0 ? 'positive' : 'negative'}>
+                      {latestSnapshot ? percent(latestSnapshot.changePercent) : '-'}
+                    </span>
+                    <em>{item.movementExplanation?.trim() ? 'Explained' : 'Needs note'}</em>
+                  </button>
+                );
+              })}
+            </div>
+
+            {selectedItem && (
+              <article className="position detail-panel">
                 <div className="position-header">
                   <div>
-                    <strong>{item.ticker}</strong>
-                    <span>{item.name}</span>
+                    <strong>{selectedItem.ticker}</strong>
+                    <span>{selectedItem.name}</span>
                   </div>
-                  <em>{item.status}</em>
+                  <em>{selectedItem.status}</em>
                 </div>
-                <p><b>Thesis:</b> {item.thesis || 'No thesis written yet.'}</p>
-                <p><b>Risk:</b> {item.risk || 'No risk written yet.'}</p>
-                {item.marketQuote && (
+                <p><b>Thesis:</b> {selectedItem.thesis || 'No thesis written yet.'}</p>
+                <p><b>Risk:</b> {selectedItem.risk || 'No risk written yet.'}</p>
+                {selectedItem.marketQuote && (
                   <div className="market-move">
                     <span>Latest market move</span>
-                    <strong className={Number(item.marketQuote.change) >= 0 ? 'positive' : 'negative'}>
-                      {money(Number(item.marketQuote.change || 0))} ({percent(item.marketQuote.changePercent)})
+                    <strong className={Number(selectedItem.marketQuote.change) >= 0 ? 'positive' : 'negative'}>
+                      {money(Number(selectedItem.marketQuote.change || 0))} ({percent(selectedItem.marketQuote.changePercent)})
                     </strong>
                     <p>
-                      Previous close: {money(Number(item.marketQuote.previousClose || 0))}. Use this as a clue, then research what may have moved the market.
+                      Previous close: {money(Number(selectedItem.marketQuote.previousClose || 0))}. Use this as a clue, then research what may have moved the market.
                     </p>
                   </div>
                 )}
                 <div className="price-chart">
                   <div className="price-chart-header">
                     <span>Price trend</span>
-                    <strong>{item.priceHistory?.length ?? 0} saved checks</strong>
+                    <strong>{selectedItem.priceHistory?.length ?? 0} saved checks</strong>
                   </div>
-                  {item.priceHistory?.length > 1 ? (
+                  {selectedItem.priceHistory?.length > 1 ? (
                     <ResponsiveContainer width="100%" height={180}>
-                      <LineChart data={getChartData(item.priceHistory)} margin={{ top: 10, right: 12, bottom: 0, left: 0 }}>
+                      <LineChart data={getChartData(selectedItem.priceHistory)} margin={{ top: 10, right: 12, bottom: 0, left: 0 }}>
                         <CartesianGrid stroke="#e5decd" strokeDasharray="3 3" />
                         <XAxis dataKey="date" tick={{ fill: '#667064', fontSize: 12 }} tickLine={false} axisLine={false} />
                         <YAxis
@@ -834,7 +871,7 @@ function App() {
                     <p>Click Update market prices on different days to build a visible trend.</p>
                   )}
                 </div>
-                {item.priceHistory?.length > 0 && (
+                {selectedItem.priceHistory?.length > 0 && (
                   <details className="price-history">
                     <summary>Price history</summary>
                     <table>
@@ -846,8 +883,8 @@ function App() {
                         </tr>
                       </thead>
                       <tbody>
-                        {item.priceHistory.slice(0, 5).map((snapshot) => (
-                          <tr key={`${item.id}-${snapshot.checkedAt}`}>
+                        {selectedItem.priceHistory.slice(0, 5).map((snapshot) => (
+                          <tr key={`${selectedItem.id}-${snapshot.checkedAt}`}>
                             <td>{formatDateTime(snapshot.checkedAt)}</td>
                             <td>{money(snapshot.price)}</td>
                             <td className={Number(snapshot.change) >= 0 ? 'positive' : 'negative'}>
@@ -859,20 +896,20 @@ function App() {
                     </table>
                   </details>
                 )}
-                <details className="movement-prompts">
+                <details className="movement-prompts" open>
                   <summary>What might explain this move?</summary>
                   <div>
-                    <p>{getMovementPromptGroup(item.ticker).title}</p>
+                    <p>{getMovementPromptGroup(selectedItem.ticker).title}</p>
                     <ul>
-                      {getMovementPromptGroup(item.ticker).prompts.map((prompt) => (
+                      {getMovementPromptGroup(selectedItem.ticker).prompts.map((prompt) => (
                         <li key={prompt}>{prompt}</li>
                       ))}
                     </ul>
                     <label className="movement-explanation">
                       <span>My explanation</span>
                       <textarea
-                        value={item.movementExplanation ?? ''}
-                        onChange={(event) => updateMovementExplanation(item.id, event.target.value)}
+                        value={selectedItem.movementExplanation ?? ''}
+                        onChange={(event) => updateMovementExplanation(selectedItem.id, event.target.value)}
                         placeholder="Write what you think caused the latest move. It is okay to be unsure; write what you would check next."
                       />
                     </label>
@@ -880,8 +917,8 @@ function App() {
                       <div>
                         <span>Looks good</span>
                         <ul>
-                          {(reviewMovementExplanation(item).strengths.length > 0
-                            ? reviewMovementExplanation(item).strengths
+                          {(reviewMovementExplanation(selectedItem).strengths.length > 0
+                            ? reviewMovementExplanation(selectedItem).strengths
                             : ['No strong signals yet. Try naming one market factor.']
                           ).map((message) => (
                             <li key={message}>{message}</li>
@@ -891,7 +928,7 @@ function App() {
                       <div>
                         <span>Check next</span>
                         <ul>
-                          {reviewMovementExplanation(item).suggestions.map((message) => (
+                          {reviewMovementExplanation(selectedItem).suggestions.map((message) => (
                             <li key={message}>{message}</li>
                           ))}
                         </ul>
@@ -906,8 +943,8 @@ function App() {
                       <label className="research-field" key={question.key}>
                         <span>{question.label}</span>
                         <textarea
-                          value={item.research?.[question.key] ?? ''}
-                          onChange={(event) => updateResearchAnswer(item.id, question.key, event.target.value)}
+                          value={selectedItem.research?.[question.key] ?? ''}
+                          onChange={(event) => updateResearchAnswer(selectedItem.id, question.key, event.target.value)}
                           placeholder={question.prompt}
                         />
                       </label>
@@ -915,13 +952,13 @@ function App() {
                   </div>
                 </details>
                 <dl>
-                  <div><dt>Review</dt><dd>{item.reviewDate || 'Not set'}</dd></div>
-                  <div><dt>Invested</dt><dd>{money(item.invested)}</dd></div>
-                  <div><dt>Value</dt><dd>{money(item.value)}</dd></div>
-                  <div><dt>Gain/loss</dt><dd className={item.gain >= 0 ? 'positive' : 'negative'}>{money(item.gain)}</dd></div>
+                  <div><dt>Review</dt><dd>{selectedItem.reviewDate || 'Not set'}</dd></div>
+                  <div><dt>Invested</dt><dd>{money(selectedItem.invested)}</dd></div>
+                  <div><dt>Value</dt><dd>{money(selectedItem.value)}</dd></div>
+                  <div><dt>Gain/loss</dt><dd className={selectedItem.gain >= 0 ? 'positive' : 'negative'}>{money(selectedItem.gain)}</dd></div>
                 </dl>
               </article>
-            ))}
+            )}
           </div>
         </section>
       </section>
