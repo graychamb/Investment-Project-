@@ -271,14 +271,19 @@ button:hover {
 
 .portfolio-browser {
   display: grid;
-  grid-template-columns: minmax(300px, 0.8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(250px, 0.75fr) minmax(0, 1.25fr);
   gap: 16px;
   align-items: start;
 }
 
 .etf-list {
+  position: sticky;
+  top: 16px;
   display: grid;
   gap: 8px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .etf-row {
@@ -625,19 +630,14 @@ dd {
   .dashboard,
   .snapshot-grid,
   .workspace,
-  .portfolio-browser,
   .explanation-review,
   .research-fields,
   dl {
     grid-template-columns: 1fr;
   }
 
-  .detail-panel {
-    position: static;
-  }
-
   .etf-row {
-    grid-template-columns: 1fr 78px;
+    grid-template-columns: minmax(120px, 1fr) 78px;
   }
 
   .etf-row span:nth-child(3),
@@ -652,5 +652,17 @@ dd {
   .form-grid,
   .form-grid.three {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .portfolio-browser {
+    grid-template-columns: 1fr;
+  }
+
+  .etf-list,
+  .detail-panel {
+    position: static;
+    max-height: none;
   }
 }
