@@ -159,6 +159,73 @@ const movementPromptGroups = {
   },
 };
 
+const movementReviewRules = {
+  IVV: {
+    expected: [
+      { label: 'US market', terms: ['us market', 's&p', 's&p 500', 'sp500', 'america', 'wall street'] },
+      { label: 'large US companies', terms: ['apple', 'microsoft', 'nvidia', 'amazon', 'meta', 'large companies', 'big tech'] },
+      { label: 'currency', terms: ['currency', 'aud', 'usd', 'exchange rate', 'australian dollar'] },
+      { label: 'rates or inflation', terms: ['rate', 'rates', 'inflation', 'fed', 'federal reserve', 'jobs'] },
+    ],
+  },
+  VGS: {
+    expected: [
+      { label: 'global markets', terms: ['global', 'world', 'international', 'developed markets'] },
+      { label: 'US influence', terms: ['us', 's&p', 'america', 'wall street'] },
+      { label: 'currency', terms: ['currency', 'aud', 'usd', 'exchange rate'] },
+      { label: 'regional concentration', terms: ['region', 'country', 'japan', 'europe', 'uk'] },
+    ],
+  },
+  IOO: {
+    expected: [
+      { label: 'mega-cap companies', terms: ['mega', 'large companies', 'apple', 'microsoft', 'nvidia', 'amazon'] },
+      { label: 'technology exposure', terms: ['technology', 'tech', 'ai', 'software', 'chip'] },
+      { label: 'currency', terms: ['currency', 'aud', 'usd', 'exchange rate'] },
+      { label: 'concentration', terms: ['concentrated', 'concentration', 'top holdings', 'only 100'] },
+    ],
+  },
+  VAS: {
+    expected: [
+      { label: 'Australian market', terms: ['australia', 'asx', 'australian market'] },
+      { label: 'banks or miners', terms: ['bank', 'banks', 'miner', 'miners', 'resources', 'commodity', 'iron ore'] },
+      { label: 'RBA or local economy', terms: ['rba', 'inflation', 'rates', 'housing', 'jobs', 'china'] },
+      { label: 'comparison with global ETFs', terms: ['ivv', 'vgs', 'global', 'us market'] },
+    ],
+  },
+  A200: {
+    expected: [
+      { label: 'Australian market', terms: ['australia', 'asx', 'australian market'] },
+      { label: 'banks or miners', terms: ['bank', 'banks', 'miner', 'miners', 'resources', 'commodity', 'iron ore'] },
+      { label: 'RBA or local economy', terms: ['rba', 'inflation', 'rates', 'housing', 'jobs', 'china'] },
+      { label: 'comparison with VAS', terms: ['vas', 'similar', 'same market', 'overlap'] },
+    ],
+  },
+  VAF: {
+    expected: [
+      { label: 'bond yields', terms: ['bond', 'bonds', 'yield', 'yields'] },
+      { label: 'interest rates', terms: ['rate', 'rates', 'interest', 'rba'] },
+      { label: 'inflation', terms: ['inflation', 'cpi'] },
+      { label: 'defensive assets', terms: ['defensive', 'shares', 'diversification', 'less risky'] },
+    ],
+  },
+  NDQ: {
+    expected: [
+      { label: 'technology stocks', terms: ['tech', 'technology', 'ai', 'software', 'chip', 'nvidia'] },
+      { label: 'growth stock sensitivity', terms: ['growth', 'valuation', 'expensive', 'rates', 'interest'] },
+      { label: 'concentration', terms: ['concentrated', 'concentration', 'nasdaq', 'top holdings'] },
+      { label: 'comparison with broader ETFs', terms: ['ivv', 'vgs', 'broader', 'broad market'] },
+    ],
+  },
+  VDHG: {
+    expected: [
+      { label: 'diversified mix', terms: ['diversified', 'mix', 'portfolio', 'allocation'] },
+      { label: 'shares and bonds', terms: ['shares', 'bonds', 'equities', 'fixed interest'] },
+      { label: 'currency', terms: ['currency', 'aud', 'usd', 'exchange rate'] },
+      { label: 'which part moved', terms: ['global', 'australian', 'international', 'bond'] },
+    ],
+  },
+};
+
 const defaultMovementPromptGroup = {
   title: 'Market movement',
   prompts: [
@@ -166,6 +233,14 @@ const defaultMovementPromptGroup = {
     'Was there company, sector, interest-rate, inflation, currency, or earnings news?',
     'Did this move more or less than similar investments?',
     'What would I check before assuming I know the reason?',
+  ],
+};
+
+const defaultMovementReviewRule = {
+  expected: [
+    { label: 'market vs specific cause', terms: ['market', 'sector', 'company', 'specific'] },
+    { label: 'macro factor', terms: ['rates', 'inflation', 'currency', 'earnings'] },
+    { label: 'comparison', terms: ['compared', 'similar', 'relative', 'more than', 'less than'] },
   ],
 };
 
@@ -314,6 +389,37 @@ function formatDateTime(value) {
 
 function getMovementPromptGroup(ticker) {
   return movementPromptGroups[ticker.toUpperCase()] ?? defaultMovementPromptGroup;
+}
+
+function reviewMovementExplanation(item) {
+  const explanation = (item.movementExplanation ?? '').trim();
+
+  if (!explanation) {
+    return {
+      strengths: [],
+      suggestions: ['Write a short explanation first. It can include what you are unsure about.'],
+    };
+  }
+
+  const text = explanation.toLowerCase();
+  const rules = movementReviewRules[item.ticker.toUpperCase()] ?? defaultMovementReviewRule;
+  const matched = rules.expected.filter((rule) => rule.terms.some((term) => text.includes(term)));
+  const missing = rules.expected.filter((rule) => !rule.terms.some((term) => text.includes(term)));
+  const strengths = matched.map((rule) => `Good: you considered ${rule.label}.`);
+  const suggestions = missing.slice(0, 2).map((rule) => `Check next: did ${rule.label} matter?`);
+
+  if (explanation.length < 40) {
+    suggestions.unshift('Add one more sentence explaining why you think that factor mattered.');
+  }
+
+  if (!text.includes('check') && !text.includes('source') && !text.includes('unsure') && !text.includes('maybe')) {
+    suggestions.push('Good research habit: add what source you would check next, or say what you are unsure about.');
+  }
+
+  return {
+    strengths,
+    suggestions,
+  };
 }
 
 function App() {
@@ -641,6 +747,27 @@ function App() {
                         placeholder="Write what you think caused the latest move. It is okay to be unsure; write what you would check next."
                       />
                     </label>
+                    <div className="explanation-review">
+                      <div>
+                        <span>Looks good</span>
+                        <ul>
+                          {(reviewMovementExplanation(item).strengths.length > 0
+                            ? reviewMovementExplanation(item).strengths
+                            : ['No strong signals yet. Try naming one market factor.']
+                          ).map((message) => (
+                            <li key={message}>{message}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <span>Check next</span>
+                        <ul>
+                          {reviewMovementExplanation(item).suggestions.map((message) => (
+                            <li key={message}>{message}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </details>
                 <details className="research-checklist">

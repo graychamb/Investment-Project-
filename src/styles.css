@@ -349,6 +349,39 @@ button:hover {
   line-height: 1.5;
 }
 
+.explanation-review {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.explanation-review div {
+  border: 1px solid #d7e2d7;
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px;
+}
+
+.explanation-review span {
+  display: block;
+  color: #1f6f4a;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.explanation-review ul {
+  display: grid;
+  gap: 7px;
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.explanation-review li {
+  line-height: 1.45;
+}
+
 .research-checklist {
   margin-top: 14px;
   border: 1px solid #e5decd;
@@ -422,6 +455,7 @@ dd {
 
   .dashboard,
   .workspace,
+  .explanation-review,
   .research-fields,
   dl {
     grid-template-columns: 1fr;
