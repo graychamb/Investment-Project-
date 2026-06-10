@@ -84,6 +84,91 @@ const researchChecklist = [
   },
 ];
 
+const movementPromptGroups = {
+  IVV: {
+    title: 'US large companies',
+    prompts: [
+      'Did the S&P 500 move overnight?',
+      'Did major holdings like Apple, Microsoft, Nvidia, Amazon, or Meta move?',
+      'Did AUD/USD currency movement change the Australian-dollar price?',
+      'Was there US inflation, interest-rate, jobs, earnings, or Federal Reserve news?',
+    ],
+  },
+  VGS: {
+    title: 'Global developed markets',
+    prompts: [
+      'Did broad global share markets move?',
+      'Did US markets drive most of the move?',
+      'Did AUD/USD or other currency movement affect the Australian-dollar price?',
+      'Was the move broad across countries, or concentrated in one region?',
+    ],
+  },
+  IOO: {
+    title: 'Global mega-cap companies',
+    prompts: [
+      'Did a few very large global companies drive the move?',
+      'Did US technology or healthcare stocks move strongly?',
+      'Did currency movement affect the Australian-dollar price?',
+      'Is this behaving differently from broader global exposure like VGS?',
+    ],
+  },
+  VAS: {
+    title: 'Australian shares',
+    prompts: [
+      'Did the Australian market move today?',
+      'Did banks, miners, or energy companies drive the move?',
+      'Was there RBA, inflation, jobs, housing, China, or commodity news?',
+      'Is this behaving differently from global ETFs like IVV or VGS?',
+    ],
+  },
+  A200: {
+    title: 'Australian shares',
+    prompts: [
+      'Did the Australian market move today?',
+      'Did banks, miners, or energy companies drive the move?',
+      'Was there RBA, inflation, jobs, housing, China, or commodity news?',
+      'Is this moving similarly to VAS, and if not, why might that be?',
+    ],
+  },
+  VAF: {
+    title: 'Australian bonds',
+    prompts: [
+      'Did bond yields move today?',
+      'Did interest-rate expectations change?',
+      'Was there RBA, inflation, or government bond market news?',
+      'Did this move differently from share ETFs, and what does that teach me about defensive assets?',
+    ],
+  },
+  NDQ: {
+    title: 'Technology-heavy US growth',
+    prompts: [
+      'Did technology stocks move more than the broader market?',
+      'Did AI, chip, software, earnings, or valuation news matter today?',
+      'Did interest-rate expectations affect growth stocks?',
+      'Is NDQ moving more sharply than IVV or VGS because it is more concentrated?',
+    ],
+  },
+  VDHG: {
+    title: 'Diversified high-growth portfolio',
+    prompts: [
+      'Did global shares, Australian shares, or bonds drive most of the move?',
+      'Is the movement smaller than concentrated ETFs because it is diversified?',
+      'Did currency movement affect the international holdings?',
+      'What does this teach me about all-in-one diversified funds?',
+    ],
+  },
+};
+
+const defaultMovementPromptGroup = {
+  title: 'Market movement',
+  prompts: [
+    'Did the overall market move, or was this specific to the investment?',
+    'Was there company, sector, interest-rate, inflation, currency, or earnings news?',
+    'Did this move more or less than similar investments?',
+    'What would I check before assuming I know the reason?',
+  ],
+};
+
 const suggestedResearchIdeas = [
   {
     id: 'idea-ivv',
@@ -225,6 +310,10 @@ function formatDateTime(value) {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value));
+}
+
+function getMovementPromptGroup(ticker) {
+  return movementPromptGroups[ticker.toUpperCase()] ?? defaultMovementPromptGroup;
 }
 
 function App() {
@@ -522,6 +611,17 @@ function App() {
                     </table>
                   </details>
                 )}
+                <details className="movement-prompts">
+                  <summary>What might explain this move?</summary>
+                  <div>
+                    <p>{getMovementPromptGroup(item.ticker).title}</p>
+                    <ul>
+                      {getMovementPromptGroup(item.ticker).prompts.map((prompt) => (
+                        <li key={prompt}>{prompt}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </details>
                 <details className="research-checklist">
                   <summary>Research checklist</summary>
                   <div className="research-fields">

@@ -302,6 +302,37 @@ button:hover {
   font-weight: 700;
 }
 
+.movement-prompts {
+  margin-top: 14px;
+  border: 1px solid #d7e2d7;
+  border-radius: 8px;
+  background: #f3f8f2;
+  padding: 12px 14px;
+}
+
+.movement-prompts summary {
+  color: #1f6f4a;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.movement-prompts p {
+  margin: 12px 0 8px;
+  color: #3b453d;
+  font-weight: 800;
+}
+
+.movement-prompts ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.movement-prompts li {
+  line-height: 1.45;
+}
+
 .research-checklist {
   margin-top: 14px;
   border: 1px solid #e5decd;
