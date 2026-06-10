@@ -1,4 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 const watchlistStorageKey = 'investment-lab-watchlist';
 
@@ -387,6 +396,26 @@ function formatDateTime(value) {
   }).format(new Date(value));
 }
 
+function formatShortDate(value) {
+  if (!value) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('en-AU', {
+    day: '2-digit',
+    month: 'short',
+  }).format(new Date(value));
+}
+
+function getChartData(priceHistory = []) {
+  return [...priceHistory]
+    .reverse()
+    .map((snapshot) => ({
+      date: formatShortDate(snapshot.checkedAt),
+      price: Number(snapshot.price),
+    }));
+}
+
 function getMovementPromptGroup(ticker) {
   return movementPromptGroups[ticker.toUpperCase()] ?? defaultMovementPromptGroup;
 }
@@ -705,6 +734,32 @@ function App() {
                     </p>
                   </div>
                 )}
+                <div className="price-chart">
+                  <div className="price-chart-header">
+                    <span>Price trend</span>
+                    <strong>{item.priceHistory?.length ?? 0} saved checks</strong>
+                  </div>
+                  {item.priceHistory?.length > 1 ? (
+                    <ResponsiveContainer width="100%" height={180}>
+                      <LineChart data={getChartData(item.priceHistory)} margin={{ top: 10, right: 12, bottom: 0, left: 0 }}>
+                        <CartesianGrid stroke="#e5decd" strokeDasharray="3 3" />
+                        <XAxis dataKey="date" tick={{ fill: '#667064', fontSize: 12 }} tickLine={false} axisLine={false} />
+                        <YAxis
+                          domain={['dataMin', 'dataMax']}
+                          tick={{ fill: '#667064', fontSize: 12 }}
+                          tickFormatter={(value) => Number(value).toFixed(2)}
+                          tickLine={false}
+                          axisLine={false}
+                          width={54}
+                        />
+                        <Tooltip formatter={(value) => money(Number(value))} labelStyle={{ color: '#17211b' }} />
+                        <Line type="monotone" dataKey="price" stroke="#1f6f4a" strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <p>Click Update market prices on different days to build a visible trend.</p>
+                  )}
+                </div>
                 {item.priceHistory?.length > 0 && (
                   <details className="price-history">
                     <summary>Price history</summary>

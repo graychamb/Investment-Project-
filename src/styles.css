@@ -262,6 +262,40 @@ button:hover {
   margin-bottom: 0;
 }
 
+.price-chart {
+  margin-top: 14px;
+  border: 1px solid #e5decd;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fffdf6 0%, #f8f3e6 100%);
+  padding: 14px;
+}
+
+.price-chart-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.price-chart-header span {
+  color: #667064;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.price-chart-header strong {
+  color: #17211b;
+  font-size: 13px;
+}
+
+.price-chart p {
+  margin: 0;
+  color: #667064;
+  line-height: 1.5;
+}
+
 .price-history {
   margin-top: 14px;
   overflow-x: auto;
