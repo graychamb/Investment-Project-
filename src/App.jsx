@@ -401,6 +401,19 @@ function App() {
     );
   }
 
+  function updateMovementExplanation(itemId, value) {
+    setWatchlist((current) =>
+      current.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              movementExplanation: value,
+            }
+          : item
+      )
+    );
+  }
+
   async function refreshMarketPrices() {
     setMarketStatus('Fetching delayed market prices...');
 
@@ -620,6 +633,14 @@ function App() {
                         <li key={prompt}>{prompt}</li>
                       ))}
                     </ul>
+                    <label className="movement-explanation">
+                      <span>My explanation</span>
+                      <textarea
+                        value={item.movementExplanation ?? ''}
+                        onChange={(event) => updateMovementExplanation(item.id, event.target.value)}
+                        placeholder="Write what you think caused the latest move. It is okay to be unsure; write what you would check next."
+                      />
+                    </label>
                   </div>
                 </details>
                 <details className="research-checklist">

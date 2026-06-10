@@ -333,6 +333,22 @@ button:hover {
   line-height: 1.45;
 }
 
+.movement-explanation {
+  margin: 14px 0 0;
+}
+
+.movement-explanation span {
+  color: #3b453d;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.movement-explanation textarea {
+  min-height: 96px;
+  background: #fff;
+  line-height: 1.5;
+}
+
 .research-checklist {
   margin-top: 14px;
   border: 1px solid #e5decd;
