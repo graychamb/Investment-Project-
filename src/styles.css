@@ -128,6 +128,76 @@ dt {
   font-size: 24px;
 }
 
+.market-snapshot {
+  margin: 18px 0;
+  border: 1px solid #d7e2d7;
+  border-radius: 8px;
+  background: #f3f8f2;
+  padding: 22px;
+  box-shadow: 0 10px 26px rgba(31, 42, 34, 0.08);
+}
+
+.snapshot-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+.snapshot-heading h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.snapshot-heading > span {
+  color: #667064;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.snapshot-grid article {
+  border: 1px solid #d7e2d7;
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+}
+
+.snapshot-grid span {
+  display: block;
+  color: #667064;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.snapshot-grid strong {
+  display: block;
+  margin-top: 8px;
+  color: #17211b;
+  font-size: 26px;
+}
+
+.snapshot-grid em {
+  display: block;
+  margin-top: 4px;
+  color: #667064;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.research-focus {
+  margin: 16px 0 0;
+  color: #2c352f;
+  line-height: 1.55;
+}
+
 .workspace {
   display: grid;
   grid-template-columns: 380px 1fr;
@@ -488,11 +558,16 @@ dd {
   }
 
   .dashboard,
+  .snapshot-grid,
   .workspace,
   .explanation-review,
   .research-fields,
   dl {
     grid-template-columns: 1fr;
+  }
+
+  .snapshot-heading {
+    display: grid;
   }
 
   .form-grid,

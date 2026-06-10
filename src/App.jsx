@@ -494,6 +494,37 @@ function App() {
     };
   }, [watchlist]);
 
+  const marketSnapshot = useMemo(() => {
+    const rowsWithSnapshots = summary.rows
+      .map((item) => ({
+        ...item,
+        latestSnapshot: item.priceHistory?.[0],
+      }))
+      .filter((item) => item.latestSnapshot);
+    const byPercentMove = [...rowsWithSnapshots].sort(
+      (a, b) => Math.abs(Number(b.latestSnapshot.changePercent || 0)) - Math.abs(Number(a.latestSnapshot.changePercent || 0))
+    );
+    const biggestGainer = [...rowsWithSnapshots].sort(
+      (a, b) => Number(b.latestSnapshot.changePercent || 0) - Number(a.latestSnapshot.changePercent || 0)
+    )[0];
+    const biggestFaller = [...rowsWithSnapshots].sort(
+      (a, b) => Number(a.latestSnapshot.changePercent || 0) - Number(b.latestSnapshot.changePercent || 0)
+    )[0];
+    const needsExplanation = rowsWithSnapshots.find((item) => !item.movementExplanation?.trim());
+    const lastUpdated = rowsWithSnapshots
+      .map((item) => item.latestSnapshot.checkedAt)
+      .sort((a, b) => new Date(b) - new Date(a))[0];
+
+    return {
+      biggestMover: byPercentMove[0],
+      biggestGainer,
+      biggestFaller,
+      needsExplanation,
+      lastUpdated,
+      hasSnapshots: rowsWithSnapshots.length > 0,
+    };
+  }, [summary.rows]);
+
   function updateForm(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
   }
@@ -642,6 +673,49 @@ function App() {
           <span>Best / worst</span>
           <strong>{summary.best?.ticker ?? '-'} / {summary.worst?.ticker ?? '-'}</strong>
         </article>
+      </section>
+
+      <section className="market-snapshot" aria-label="Market snapshot">
+        <div className="snapshot-heading">
+          <div>
+            <p className="eyebrow">Market snapshot</p>
+            <h2>Today&apos;s research focus</h2>
+          </div>
+          <span>{marketSnapshot.lastUpdated ? `Updated ${formatDateTime(marketSnapshot.lastUpdated)}` : 'No price checks yet'}</span>
+        </div>
+        {marketSnapshot.hasSnapshots ? (
+          <>
+            <div className="snapshot-grid">
+              <article>
+                <span>Biggest mover</span>
+                <strong>{marketSnapshot.biggestMover.ticker}</strong>
+                <em className={Number(marketSnapshot.biggestMover.latestSnapshot.changePercent) >= 0 ? 'positive' : 'negative'}>
+                  {percent(marketSnapshot.biggestMover.latestSnapshot.changePercent)}
+                </em>
+              </article>
+              <article>
+                <span>Biggest gainer</span>
+                <strong>{marketSnapshot.biggestGainer.ticker}</strong>
+                <em className="positive">{percent(marketSnapshot.biggestGainer.latestSnapshot.changePercent)}</em>
+              </article>
+              <article>
+                <span>Biggest faller</span>
+                <strong>{marketSnapshot.biggestFaller.ticker}</strong>
+                <em className="negative">{percent(marketSnapshot.biggestFaller.latestSnapshot.changePercent)}</em>
+              </article>
+              <article>
+                <span>Needs explanation</span>
+                <strong>{marketSnapshot.needsExplanation?.ticker ?? 'All done'}</strong>
+                <em>{marketSnapshot.needsExplanation ? 'Write one note' : 'Nice work'}</em>
+              </article>
+            </div>
+            <p className="research-focus">
+              Start with {marketSnapshot.needsExplanation?.ticker ?? marketSnapshot.biggestMover.ticker}. Open its movement prompts, write what you think caused the move, then use the checker to improve your answer.
+            </p>
+          </>
+        ) : (
+          <p className="research-focus">Click Update market prices to create your first snapshot. Then this dashboard will point you to the ETF worth researching first.</p>
+        )}
       </section>
 
       <section className="workspace">
